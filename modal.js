@@ -22,7 +22,7 @@
 
   // MODAL CLASS DEFINITION
   // ======================
-
+  var stackModal = [];
   var Modal = function (element, options) {
     this.options   = options
     this.$element  = $(element)
@@ -44,9 +44,9 @@
 
   Modal.prototype.show = function (_relatedTarget) {
     var that = this
-    var e    = $.Event('show.bs.modal', { relatedTarget: _relatedTarget })
+    var e    = $.Event('show.bs.modal', { relatedTarget: _relatedTarget }) 
 
-    this.$element.trigger(e)
+    this.$element.trigger(e) // firing events 'show'
 
     if (this.isShown || e.isDefaultPrevented()) return
 
@@ -83,7 +83,9 @@
             that.$element.focus().trigger(e)
           })
           .emulateTransitionEnd(300) :
-        that.$element.focus().trigger(e)
+        that.$element.focus().trigger(e) // firing events 'shown'
+
+        stackModal.push(that);
     })
   }
 
@@ -93,7 +95,8 @@
     e = $.Event('hide.bs.modal')
 
     this.$element.trigger(e)
-
+    stackModal.pop();
+    
     if (!this.isShown || e.isDefaultPrevented()) return
 
     this.isShown = false
@@ -240,7 +243,14 @@
   })
 
   $(document)
-    .on('show.bs.modal',  '.modal', function () { $(document.body).addClass('modal-open') })
-    .on('hidden.bs.modal', '.modal', function () { $(document.body).removeClass('modal-open') })
+    .on('show.bs.modal',  '.modal', function () {
+      $(document.body).addClass('modal-open')
+    })
+    .on('hidden.bs.modal', '.modal', function () {
+      if(stackModal.length == 0)
+        $(document.body).removeClass('modal-open')
+      else
+        $(document.body).addClass('modal-open')
+    })
 
 }(jQuery);
